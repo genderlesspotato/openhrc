@@ -1,0 +1,21 @@
+---
+- name: Apply syspatch security/reliability patches
+  ansible.builtin.command: syspatch
+  register: update_syspatch_result
+  changed_when: update_syspatch_result.stdout != ""
+  when: update_syspatch_enabled
+
+- name: Warn if a patched kernel requires a reboot
+  ansible.builtin.debug:
+    msg: >-
+      syspatch applied a kernel patch -- reboot the router manually for it
+      to take effect.
+  when:
+    - update_syspatch_enabled
+    - "'reboot' in update_syspatch_result.stdout | lower"
+
+- name: Update installed packages to their latest available versions
+  community.general.openbsd_pkg:
+    name: "*"
+    state: latest
+  when: update_packages_enabled

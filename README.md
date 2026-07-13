@@ -68,6 +68,7 @@ openhrc/
 │       └── vault.yml.example     # copy to vault.yml, encrypt with ansible-vault
 └── roles/
     ├── base/                     # hostname, mirror, generic packages, sysctls, doas
+    ├── update/                   # syspatch security patches, pkg_add -u package upgrades
     ├── network/                  # network interfaces, default gateway
     ├── badhost/                  # pf-badhost: bad-host IP blocklist for pf
     ├── firewall/                 # pf
@@ -231,9 +232,26 @@ unbound forwarding to it, but that was removed in 2020. Today unbound (the
 static entries alongside its normal recursive-resolver duties, and it's bound
 to the LAN interface only -- it was never reachable from the WAN either way.
 
+**Q:** How do I apply security patches and update packages?
+
+**A:** The `update` role runs on every `ansible-playbook site.yml` (or
+`./configure.sh`) invocation, applying `syspatch` and updating installed
+packages to their latest available versions (`pkg_add -u`). To patch
+without touching any other configuration, scope the run to just that role:
+~~~~~~
+ansible-playbook site.yml --tags update
+~~~~~~
+If `syspatch` applies a kernel patch, it won't take effect until you
+reboot -- the role will print a reminder, but it never reboots the router
+for you. This only covers routine patch-level maintenance on the
+currently-installed release; see the next question for upgrading to a new
+OpenBSD release entirely.
+
 **Q:** How can I perform a clean re-install/upgrade of OpenBSD?
 
-**A:** From the existing installation, fetch the appropriate `bsd.rd` for the release you wish to install:
+**A:** This is for moving to a new *release* (e.g. 7.8 -> 7.9), not routine
+patching -- see the previous question for that. From the existing
+installation, fetch the appropriate `bsd.rd` for the release you wish to install:
 
 ~~~~~~
 # ftp -o /bsd-installer.rd https://cdn.openbsd.org/pub/OpenBSD/${RELEASE}/amd64/bsd.rd

@@ -4,6 +4,14 @@
 ## Unreleased
 
 ### Added
+- `update` role: applies `syspatch` security/reliability patches and
+  updates installed packages to their latest available versions
+  (`pkg_add -u`) on every playbook run, or in isolation via
+  `ansible-playbook site.yml --tags update`. Purely on-demand -- no cron
+  scheduling and no automatic reboot; a reboot reminder is printed if a
+  kernel patch was applied. Toggle either half off independently with
+  `update_syspatch_enabled: false` / `update_packages_enabled: false`.
+  Full OpenBSD release upgrades remain a manual procedure (see README FAQ).
 - `badhost` role: installs and cron-schedules [pf-badhost][pf-badhost],
   which maintains a `pf` table of known-bad hosts from public blocklists.
   Disabled by default (`badhost_enabled: false`); the script is fetched

@@ -46,17 +46,22 @@ Before tagging a release:
    `ansible.builtin.file: state=touch` always reports changed on repeat runs
    when `firewall_enable_custom_rules` is set; low-priority, not a
    correctness issue).
+7. Run `ansible-playbook site.yml --tags update` and confirm `syspatch` and
+   the package-upgrade task behave sensibly (patches/upgrades applied where
+   available, reboot reminder printed only when a kernel patch was
+   applied). Run it a second time immediately after and confirm both tasks
+   report no `changed` (nothing left to patch/upgrade).
 
 With `badhost_enabled: true` and `adblock_enabled: true` (after updating the
 placeholder `badhost_checksum`/`adblock_checksum` values to a real pinned
 release):
 
-7. Confirm `pfctl -sr` shows the `pfbadhost` table/block rules, and
+8. Confirm `pfctl -sr` shows the `pfbadhost` table/block rules, and
    `crontab -u _pfbadhost -l` shows the nightly job.
-8. Run `doas -u _pfbadhost pf-badhost -s` manually once and confirm no
+9. Run `doas -u _pfbadhost pf-badhost -s` manually once and confirm no
    permission errors, then `pfctl -t pfbadhost -T show` reports a populated
    table.
-9. Confirm `crontab -u _unboundadblock -l` shows the job, run
+10. Confirm `crontab -u _unboundadblock -l` shows the job, run
    `doas -u _unboundadblock unbound-adblock -s` manually once, and confirm
    `/var/log/unbound-adblock` gets populated and `dig @<lan-ip>
    <known-blocked-ad-domain>` returns `NXDOMAIN`.

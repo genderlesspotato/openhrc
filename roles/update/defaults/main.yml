@@ -1,0 +1,3 @@
+---
+update_syspatch_enabled: true
+update_packages_enabled: true

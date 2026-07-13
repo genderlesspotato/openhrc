@@ -1,0 +1,26 @@
+---
+badhost_enabled: false
+
+# pf-badhost release to install -- https://www.geoghegan.ca/pfbadhost.html
+#
+# Not an OpenBSD package: fetched directly from upstream and pinned by
+# checksum, the same spirit as requirements.yml pinning collection versions.
+# Before enabling this role, pick a release, download it once, compute its
+# sha256, and replace both placeholder values below.
+badhost_version: "0.5"
+badhost_url: "https://www.geoghegan.ca/pub/pf-badhost/{{ badhost_version }}/pf-badhost"
+badhost_checksum: "sha256:CHANGEME"
+
+# Additional/override blacklist source URLs. Empty uses the script's own
+# upstream defaults (Spamhaus DROP/EDROP, dshield, etc.) -- see the sample
+# config shipped with the pinned release for the full set of supported
+# options; only the blacklist override is templated here.
+#
+# Sample:
+#   - "https://www.spamhaus.org/drop/drop.txt"
+badhost_blacklists: []
+
+badhost_install_path: /usr/local/sbin/pf-badhost
+badhost_config_path: /usr/local/etc/pf-badhost.conf
+badhost_table_file: /etc/pf-badhost.txt
+badhost_table_name: pfbadhost

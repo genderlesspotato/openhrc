@@ -1,7 +1,7 @@
 ---
 - name: Install doas configuration
-  ansible.builtin.copy:
-    src: doas.conf
+  ansible.builtin.template:
+    src: doas.conf.j2
     dest: /etc/doas.conf
     owner: root
     group: wheel

@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+# UNVERIFIED against the pinned release's actual config syntax -- confirm
+# against the sample config shipped with badhost_version before first
+# deploy. See the pf-badhost release's sample config for the full set of
+# supported options; only the blacklist source override is templated here.
+{% if badhost_blacklists %}
+blacklists {{ badhost_blacklists | join(' ') }}
+{% endif %}

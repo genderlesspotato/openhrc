@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+# UNVERIFIED against the pinned release's actual config syntax -- confirm
+# against the sample config shipped with adblock_version before first
+# deploy. See the unbound-adblock release's sample config for the full set
+# of supported options; only the blocklist source override is templated
+# here.
+{% if adblock_blacklists %}
+blacklists {{ adblock_blacklists | join(' ') }}
+{% endif %}

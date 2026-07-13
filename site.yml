@@ -7,8 +7,12 @@
       tags: [base]
     - role: network
       tags: [network]
+    - role: badhost
+      tags: [badhost]
     - role: firewall
       tags: [firewall]
+    - role: adblock
+      tags: [adblock]
     - role: dns
       tags: [dns]
     - role: dhcp

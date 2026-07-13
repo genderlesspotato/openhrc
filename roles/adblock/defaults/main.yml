@@ -1,0 +1,26 @@
+---
+adblock_enabled: false
+
+# unbound-adblock release to install -- https://www.geoghegan.ca/unbound-adblock.html
+#
+# Not an OpenBSD package: fetched directly from upstream and pinned by
+# checksum, the same spirit as requirements.yml pinning collection versions.
+# Before enabling this role, pick a release, download it once, compute its
+# sha256, and replace both placeholder values below.
+adblock_version: "0.5"
+adblock_url: "https://geoghegan.ca/pub/unbound-adblock/{{ adblock_version }}/unbound-adblock"
+adblock_checksum: "sha256:CHANGEME"
+
+# Additional/override blocklist source URLs. Empty uses the script's own
+# upstream defaults -- see the sample config shipped with the pinned release
+# for the full set of supported options; only the blocklist override is
+# templated here.
+#
+# Sample:
+#   - "https://someonewhocares.org/hosts/zero/hosts"
+adblock_blacklists: []
+
+adblock_install_path: /usr/local/sbin/unbound-adblock
+adblock_config_path: /usr/local/etc/unbound-adblock.conf
+adblock_rpz_file: /var/unbound/db/adblock.rpz
+adblock_rpz_name: unbound-adblock

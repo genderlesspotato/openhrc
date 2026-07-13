@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+permit keepenv :wheel as root
+{% if badhost_enabled %}
+permit nopass _pfbadhost cmd pfctl args -nf /etc/pf.conf
+permit nopass _pfbadhost cmd pfctl args -t {{ badhost_table_name }} -T replace -f {{ badhost_table_file }}
+{% endif %}
+{% if adblock_enabled %}
+permit nopass _unboundadblock cmd unbound-control args reload
+{% endif %}

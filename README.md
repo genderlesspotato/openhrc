@@ -37,6 +37,8 @@ Included services:
 * Local caching and validating DNS resolver
 * Authoritative DNS server for a configurable zone
 * Firewall
+* Bad-host IP blocklisting (pf-badhost)
+* DNS-based ad blocking (unbound-adblock)
 * UPnP
 * DDNS
 
@@ -67,7 +69,9 @@ openhrc/
 └── roles/
     ├── base/                     # hostname, mirror, generic packages, sysctls, doas
     ├── network/                  # network interfaces, default gateway
+    ├── badhost/                  # pf-badhost: bad-host IP blocklist for pf
     ├── firewall/                 # pf
+    ├── adblock/                  # unbound-adblock: DNS-based ad blocking for unbound
     ├── dns/                      # unbound: recursive resolver + local "authoritative" records
     ├── dhcp/                     # dhcpd, ethers
     ├── ntp/                      # ntpd

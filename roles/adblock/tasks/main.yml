@@ -1,0 +1,66 @@
+---
+- name: Create _unboundadblock service user
+  ansible.builtin.user:
+    name: _unboundadblock
+    shell: /sbin/nologin
+    system: true
+    create_home: false
+  when: adblock_enabled
+
+- name: Fetch unbound-adblock script
+  ansible.builtin.get_url:
+    url: "{{ adblock_url }}"
+    dest: "{{ adblock_install_path }}"
+    checksum: "{{ adblock_checksum }}"
+    owner: root
+    group: wheel
+    mode: "0755"
+  when: adblock_enabled
+
+- name: Create unbound-adblock log directory
+  ansible.builtin.file:
+    path: /var/log/unbound-adblock
+    state: directory
+    owner: _unboundadblock
+    group: wheel
+    mode: "0750"
+  when: adblock_enabled
+
+- name: Create placeholder RPZ zonefile
+  ansible.builtin.copy:
+    content: |
+      $TTL 3600
+      @ SOA localhost. root.localhost. (1 3600 1200 604800 3600)
+      @ NS localhost.
+    dest: "{{ adblock_rpz_file }}"
+    owner: _unbound
+    group: wheel
+    mode: "0644"
+    force: false
+  when: adblock_enabled
+
+- name: Template unbound-adblock.conf
+  ansible.builtin.template:
+    src: unbound-adblock.conf.j2
+    dest: "{{ adblock_config_path }}"
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+  when: adblock_enabled
+
+- name: Install unbound-adblock cron job
+  ansible.builtin.cron:
+    name: unbound-adblock
+    user: _unboundadblock
+    minute: "17"
+    hour: "*/3"
+    job: "{{ adblock_install_path }} -s"
+  when: adblock_enabled
+
+- name: Remove unbound-adblock cron job
+  ansible.builtin.cron:
+    name: unbound-adblock
+    user: _unboundadblock
+    state: absent
+  when: not adblock_enabled

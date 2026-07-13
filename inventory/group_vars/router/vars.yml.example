@@ -56,6 +56,16 @@
 #     internal_ports: 80
 #     protocols: tcp
 
+# badhost_enabled: false
+# badhost_version: "0.5"
+# badhost_checksum: "sha256:..."
+# badhost_blacklists: []
+
+# adblock_enabled: false
+# adblock_version: "0.5"
+# adblock_checksum: "sha256:..."
+# adblock_blacklists: []
+
 # upnp_enabled: false
 
 # ddns_enabled: false

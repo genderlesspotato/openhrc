@@ -47,5 +47,19 @@ Before tagging a release:
    when `firewall_enable_custom_rules` is set; low-priority, not a
    correctness issue).
 
+With `badhost_enabled: true` and `adblock_enabled: true` (after updating the
+placeholder `badhost_checksum`/`adblock_checksum` values to a real pinned
+release):
+
+7. Confirm `pfctl -sr` shows the `pfbadhost` table/block rules, and
+   `crontab -u _pfbadhost -l` shows the nightly job.
+8. Run `doas -u _pfbadhost pf-badhost -s` manually once and confirm no
+   permission errors, then `pfctl -t pfbadhost -T show` reports a populated
+   table.
+9. Confirm `crontab -u _unboundadblock -l` shows the job, run
+   `doas -u _unboundadblock unbound-adblock -s` manually once, and confirm
+   `/var/log/unbound-adblock` gets populated and `dig @<lan-ip>
+   <known-blocked-ad-domain>` returns `NXDOMAIN`.
+
 Building and maintaining an automated OpenBSD CI VM is intentionally out of
 scope -- disproportionate maintenance burden for a project this size.

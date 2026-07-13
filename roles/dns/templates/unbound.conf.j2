@@ -48,10 +48,22 @@ server:
 {% for record in dns_authoritative_records %}
     local-data: '{{ record }}'
 {% endfor %}
+{% if adblock_enabled %}
+
+    module-config: "respip validator iterator"
+{% endif %}
 
 remote-control:
      control-enable: yes
      control-interface: /var/run/unbound.sock
+
+{% if adblock_enabled %}
+rpz:
+    name: "{{ adblock_rpz_name }}"
+    zonefile: "{{ adblock_rpz_file }}"
+    rpz-log: yes
+    rpz-log-name: "{{ adblock_rpz_name }}"
+{% endif %}
 
 {% if dns_recursive_forwarders %}
 forward-zone:

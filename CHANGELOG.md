@@ -1,6 +1,23 @@
 
 # OpenHRC changelog
 
+## Unreleased
+
+### Added
+- `badhost` role: installs and cron-schedules [pf-badhost][pf-badhost],
+  which maintains a `pf` table of known-bad hosts from public blocklists.
+  Disabled by default (`badhost_enabled: false`); the script is fetched
+  directly from upstream and pinned by checksum (not an OpenBSD package).
+- `adblock` role: installs and cron-schedules
+  [unbound-adblock][unbound-adblock], which blocks ad/tracker domains via an
+  `unbound` Response Policy Zone. Disabled by default
+  (`adblock_enabled: false`); same fetch-and-pin delivery as `badhost`.
+- Both roles contribute narrowly-scoped `doas` rules to the (now templated)
+  `/etc/doas.conf`, gated on their respective `_enabled` flag.
+
+[pf-badhost]: https://www.geoghegan.ca/pfbadhost.html
+[unbound-adblock]: https://www.geoghegan.ca/unbound-adblock.html
+
 ## 2.0.0 - Ansible modernization rewrite
 
 ### Changed

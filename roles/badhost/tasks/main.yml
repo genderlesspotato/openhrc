@@ -1,0 +1,61 @@
+---
+- name: Install pf-badhost dependencies
+  community.general.openbsd_pkg:
+    name:
+      - aggregate
+      - aggregate6
+    state: present
+  when: badhost_enabled
+
+- name: Create _pfbadhost service user
+  ansible.builtin.user:
+    name: _pfbadhost
+    shell: /sbin/nologin
+    system: true
+    create_home: false
+  when: badhost_enabled
+
+- name: Fetch pf-badhost script
+  ansible.builtin.get_url:
+    url: "{{ badhost_url }}"
+    dest: "{{ badhost_install_path }}"
+    checksum: "{{ badhost_checksum }}"
+    owner: root
+    group: wheel
+    mode: "0755"
+  when: badhost_enabled
+
+- name: Create pf-badhost table persist file
+  ansible.builtin.file:
+    path: "{{ badhost_table_file }}"
+    state: touch
+    owner: root
+    group: wheel
+    mode: "0644"
+  when: badhost_enabled
+
+- name: Template pf-badhost.conf
+  ansible.builtin.template:
+    src: pf-badhost.conf.j2
+    dest: "{{ badhost_config_path }}"
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+  when: badhost_enabled
+
+- name: Install pf-badhost cron job
+  ansible.builtin.cron:
+    name: pf-badhost
+    user: _pfbadhost
+    minute: "0"
+    hour: "1"
+    job: "{{ badhost_install_path }} -s"
+  when: badhost_enabled
+
+- name: Remove pf-badhost cron job
+  ansible.builtin.cron:
+    name: pf-badhost
+    user: _pfbadhost
+    state: absent
+  when: not badhost_enabled

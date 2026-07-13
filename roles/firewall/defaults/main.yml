@@ -1,0 +1,13 @@
+---
+firewall_enable_wan_ssh: true
+firewall_wan_ssh_external_port: 8022
+
+firewall_enable_wan_ping: false
+firewall_enable_custom_rules: false
+
+# Sample:
+#   - external_ports: 8080
+#     target: 10.0.0.51
+#     internal_ports: 80
+#     protocols: tcp
+firewall_port_forwardings: []

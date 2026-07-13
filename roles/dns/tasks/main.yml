@@ -1,0 +1,21 @@
+---
+- name: Template unbound.conf
+  ansible.builtin.template:
+    src: unbound.conf.j2
+    dest: /var/unbound/etc/unbound.conf
+    owner: _unbound
+    group: wheel
+    mode: "0644"
+    backup: true
+  notify: Reload unbound
+
+- name: Generate unbound-control key material
+  ansible.builtin.command: unbound-control-setup -d /var/unbound/etc/
+  args:
+    creates: /var/unbound/etc/unbound_server.key
+
+- name: Enable unbound service
+  ansible.builtin.service:
+    name: unbound
+    args: -c /var/unbound/etc/unbound.conf
+    enabled: true

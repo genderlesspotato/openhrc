@@ -1,2 +1,4 @@
-local-vars.yml
+inventory/group_vars/router/vars.yml
+inventory/group_vars/router/vault.yml
 *.retry
+.ansible/

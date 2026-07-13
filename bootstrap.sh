@@ -11,11 +11,18 @@ if [[ -d ".git" ]]
 then
     echo "Updating OHRC..."
     git pull
-    touch local-vars.yml
 else
     echo "Downloading OHRC..."
     git clone https://github.com/ioc32/openhrc
-    touch openhrc/local-vars.yml
+    cd openhrc
 fi
 
-echo "Bootstrap done, set local variables in local-vars.yml and run configure.sh"
+mkdir -p inventory/group_vars/router
+[ -f inventory/group_vars/router/vars.yml ] || cp inventory/group_vars/router/vars.yml.example inventory/group_vars/router/vars.yml
+[ -f inventory/group_vars/router/vault.yml ] || cp inventory/group_vars/router/vault.yml.example inventory/group_vars/router/vault.yml
+
+ansible-galaxy collection install -r requirements.yml
+
+echo "Bootstrap done, set variables in inventory/group_vars/router/vars.yml,"
+echo "encrypt secrets in inventory/group_vars/router/vault.yml with"
+echo "'ansible-vault encrypt inventory/group_vars/router/vault.yml', then run configure.sh"

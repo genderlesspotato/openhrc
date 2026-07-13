@@ -1,0 +1,12 @@
+---
+# Whether ntpd also listens on the LAN interface and acts as the NTP server
+# for the internal network. ntpd itself is always enabled and always syncs
+# the router's own clock regardless of this setting -- this only controls
+# whether it serves LAN clients too.
+ntp_serve_lan_clients: true
+
+ntp_servers_pool:
+  - 0.openbsd.pool.ntp.org
+
+ntp_servers_explicit:
+  - time.cloudflare.com

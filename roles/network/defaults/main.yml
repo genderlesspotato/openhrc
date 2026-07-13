@@ -1,0 +1,15 @@
+---
+network_interfaces:
+  wan:
+    iface: re0
+    ip4: dhcp
+    description: Uplink
+  lan:
+    iface: re1
+    ip4: 10.0.0.1/24
+    description: The LAN
+
+# Whether the WAN interface uses a static gateway (network_wan_gateway_address)
+# instead of one supplied by DHCP.
+network_wan_gateway_enabled: false
+network_wan_gateway_address: ""

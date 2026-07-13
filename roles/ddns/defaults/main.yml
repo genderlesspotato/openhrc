@@ -1,0 +1,12 @@
+---
+ddns_enabled: false
+ddns_update_period_seconds: 600
+
+# Pull these from https://freedns.afraid.org/dynamic/
+ddns_system: default@freedns.afraid.org
+ddns_alias: test.mooo.com
+
+# The real value is a secret -- set it via vault_ddns_hash in
+# inventory/group_vars/router/vault.yml and reference it from vars.yml as
+# `ddns_hash: "{{ vault_ddns_hash }}"`. See vars.yml.example/vault.yml.example.
+ddns_hash: ""

@@ -1,0 +1,7 @@
+---
+# pf is not an rc.d service (there is no "pf" daemon to enable/restart) -- it
+# is a kernel packet filter reloaded via pfctl. Do not "fix" this into a
+# service: task.
+- name: Reload pf
+  ansible.builtin.command: pfctl -f /etc/pf.conf
+  changed_when: true

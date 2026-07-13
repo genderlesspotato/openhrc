@@ -1,0 +1,22 @@
+---
+- name: Install miniupnpd package
+  community.general.openbsd_pkg:
+    name: miniupnpd
+    state: present
+  when: upnp_enabled
+
+- name: Template miniupnpd.conf
+  ansible.builtin.template:
+    src: miniupnpd.conf.j2
+    dest: /etc/miniupnpd.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+  when: upnp_enabled
+  notify: Reload miniupnpd
+
+- name: Enable miniupnpd service
+  ansible.builtin.service:
+    name: miniupnpd
+    enabled: "{{ upnp_enabled }}"

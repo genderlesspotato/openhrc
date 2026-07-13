@@ -1,0 +1,43 @@
+---
+# Lint/syntax validation only. There is no maintained OpenBSD GitHub Actions
+# runner or OpenBSD container image, so this workflow cannot exercise the
+# playbook against real OpenBSD runtime behavior. See docs/TESTING.md for the
+# manual OpenBSD verification runbook.
+name: lint
+
+"on":
+  push:
+  pull_request:
+
+jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install yamllint
+      - run: yamllint .
+
+  ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core ansible-lint
+      - run: ansible-galaxy collection install -r requirements.yml
+      - run: ansible-lint
+
+  syntax-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core
+      - run: ansible-galaxy collection install -r requirements.yml
+      - run: ansible-playbook -i inventory/hosts.yml site.yml --syntax-check

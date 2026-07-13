@@ -1,0 +1,12 @@
+---
+# Secrets for the "router" group, encrypted with ansible-vault.
+#
+# Copy this file to vault.yml (gitignored) and set real values, then encrypt
+# it in place:
+#
+#   ansible-vault encrypt inventory/group_vars/router/vault.yml
+#
+# vars.yml exposes these under their real names, e.g.:
+#   ddns_hash: "{{ vault_ddns_hash }}"
+
+vault_ddns_hash: "changeme"

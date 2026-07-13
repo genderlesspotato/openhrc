@@ -1,0 +1,15 @@
+---
+- name: Template ntpd.conf
+  ansible.builtin.template:
+    src: ntpd.conf.j2
+    dest: /etc/ntpd.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+  notify: Restart ntpd
+
+- name: Enable ntpd service
+  ansible.builtin.service:
+    name: ntpd
+    enabled: true

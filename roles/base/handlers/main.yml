@@ -1,0 +1,4 @@
+---
+- name: Apply sysctl settings
+  ansible.builtin.command: sysctl -f /etc/sysctl.conf
+  changed_when: true

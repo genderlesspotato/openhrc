@@ -1,0 +1,20 @@
+---
+- name: Template pf.conf
+  ansible.builtin.template:
+    src: pf.conf.j2
+    dest: /etc/pf.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+    validate: "pfctl -nf %s"
+  notify: Reload pf
+
+- name: Create custom pf rules anchor file
+  ansible.builtin.file:
+    path: /etc/pf-custom.conf
+    state: touch
+    owner: root
+    group: wheel
+    mode: "0644"
+  when: firewall_enable_custom_rules

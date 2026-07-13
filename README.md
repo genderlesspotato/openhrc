@@ -1,7 +1,7 @@
 # OpenHRC
 
 OpenHRC (Open Household Router Contraption) is a set of [Ansible][ansible]
-playbooks and scripts to easily setup and maintain a home router running
+roles and playbooks to easily setup and maintain a home router running
 [OpenBSD][openbsd].
 
 
@@ -50,6 +50,35 @@ devices:
 * [PC Engines APU][apu]
 * [Soekris net4801][soekris]
 
+This project targets the latest stable OpenBSD release (currently 7.9) and
+does not attempt to remain compatible with older releases.
+
+
+## Repository layout
+
+```
+openhrc/
+├── site.yml                      # the entry-point playbook
+├── inventory/
+│   ├── hosts.yml                 # the "router" group -- this box, managed locally
+│   └── group_vars/router/
+│       ├── vars.yml.example      # copy to vars.yml, override what you need
+│       └── vault.yml.example     # copy to vault.yml, encrypt with ansible-vault
+└── roles/
+    ├── base/                     # hostname, mirror, generic packages, sysctls, doas
+    ├── network/                  # network interfaces, default gateway
+    ├── firewall/                 # pf
+    ├── dns/                      # unbound: recursive resolver + local "authoritative" records
+    ├── dhcp/                     # dhcpd, ethers
+    ├── ntp/                      # ntpd
+    ├── upnp/                     # miniupnpd
+    └── ddns/                     # inadyn
+```
+
+Every role has its own `defaults/main.yml` listing every variable it accepts,
+with a short description. That's the authoritative reference for what you can
+configure -- `vars.yml.example` just shows the most commonly-overridden ones.
+
 
 ## Installation
 
@@ -66,16 +95,34 @@ Once you have installed [OpenBSD][openbsd] you are ready to install OpenHRC.
 ~~~~~~
   We know, piping things from the internet to the shell directly is not a good
   idea... You're more than welcome to check the contents of the script, which
-  basically just installs a few basic packages and clones this repository.
+  basically just installs a few basic packages, clones this repository, and
+  installs the required Ansible collections.
   Alternatively, you can clone this repo and manually run the bootstrapping
   script (you'll need to install git first):
 ~~~~~~
   git clone https://github.com/ioc32/openhrc && cd openhrc
   ./bootstrap.sh
 ~~~~~~
-* View vars.yml, override variables in local-vars.yml to your liking
-* Run ./configure.sh
+* Review each role's `defaults/main.yml` for available variables, and override
+  the ones you need in `inventory/group_vars/router/vars.yml` (bootstrap.sh
+  creates it for you from `vars.yml.example`).
+* Put secrets (currently just the DDNS hash) in
+  `inventory/group_vars/router/vault.yml` and encrypt it:
+~~~~~~
+  ansible-vault encrypt inventory/group_vars/router/vault.yml
+~~~~~~
+* Run `./configure.sh` (it will prompt for your vault password).
 * Reboot and have fun!
+
+
+## Continuous integration
+
+Every push/PR runs `yamllint`, `ansible-lint` (production profile), and
+`ansible-playbook --syntax-check` via GitHub Actions. This validates lint and
+syntax only -- there is no maintained OpenBSD GitHub Actions runner or OpenBSD
+container image, so CI cannot exercise the playbook against real OpenBSD
+runtime behavior. See `docs/TESTING.md` for the manual OpenBSD verification
+runbook used before releases.
 
 
 ## Authors
@@ -113,7 +160,7 @@ sysctl kern.pool_debug=0
 **A:** When defining a port forwarding, the external_ports and internal_ports options
 can take a port range, using a colon:
 ~~~~~~
-port_forwardings:
+firewall_port_forwardings:
   -
     external_ports: 5000:6000
     target: 10.0.0.51
@@ -123,28 +170,29 @@ port_forwardings:
 
 **Q:** No IPv6 support, are you serious?
 
-**A:** It's coming up in the next release, hold tight!
+**A:** It's a known long-standing gap (`base_sysctls` already enables
+`net.inet6.ip6.forwarding`, but there's no IPv6 pf/DHCPv6/AAAA support yet).
+Not part of this rewrite -- tracked as future work alongside DoH/DoT and
+traffic filtering.
 
 **Q:** How can I override the variables used in the playbooks?
 
-**A:** You can provide your own variables in the local-vars.yml file.
-The user_* list variables are empty by default. Override those you need by adding them to local variables file.
-In order to override variables stored in dictionaries (like the firewall or dns sections, for example), you can override individual keys that will be merged with the remaining default keys.
+**A:** Every role ships sensible defaults in its own `roles/<role>/defaults/main.yml`.
+Override only the specific variables you need in
+`inventory/group_vars/router/vars.yml` (copy it from `vars.yml.example`) --
+Ansible's normal variable precedence means your override wins over the role
+default without needing to restate anything else.
 
 **Q:** My favorite site/TLD have screwed their DNSSEC. Is there anything I can do?
 
 **A:** You can either disable DNSSEC validation entirely (not recommended):
 ~~~~~~
-dns:
-  recursive:
-      enable_dnssec_validation: false
+dns_recursive_enable_dnssec_validation: false
 ~~~~~~
 or enable the permissive validation mode, which will ensure unbound keeps validating domains and passing responses down to clients even when validation fails (ad bit and SERVFAIL RCODE will not be set, of course):
 ~~~~~~
-dns:
-  recursive:
-    enable_dnssec_validation: true
-    permissive_dnssec_validation: true
+dns_recursive_enable_dnssec_validation: true
+dns_recursive_permissive_dnssec_validation: true
 ~~~~~~
 
 You may also need to remove all bogus data from unbound's cache:
@@ -161,20 +209,23 @@ ok removed 10 rrsets, 0 messages and 1 key entries
 **Q:** How can I configure the authoritative DNS server?
 
 **A:** The default zone is "home.lan", you can override it and create custom records by editing
-local-vars.yml:
+`inventory/group_vars/router/vars.yml`:
 
 ~~~~~~
-dns:
-  authoritative:
-    zone: kasa.lan
-    records:
-      - foo.kasa.lan IN A 10.0.0.20
-      - bar.kasa.lan IN A 10.0.0.30
+dns_authoritative_zone: kasa.lan
+dns_authoritative_records:
+  - foo.kasa.lan IN A 10.0.0.20
+  - bar.kasa.lan IN A 10.0.0.30
 ~~~~~~
 
 **Q:** Is the authoritative DNS server accessible externally?
 
-**A:** No, NSD binds to localhost and only unbound (servicing LAN queries) forwards queries to it.
+**A:** There is no separate authoritative DNS server -- an earlier design used
+[NSD](https://www.nlnetlabs.nl/projects/nsd/about/) bound to localhost with
+unbound forwarding to it, but that was removed in 2020. Today unbound (the
+`dns` role) serves the configured zone's records directly via `local-data`/PTR
+static entries alongside its normal recursive-resolver duties, and it's bound
+to the LAN interface only -- it was never reachable from the WAN either way.
 
 **Q:** How can I perform a clean re-install/upgrade of OpenBSD?
 
@@ -203,3 +254,6 @@ The OpenBSD Ram Disk will greet you, proceed as required:
 Welcome to the OpenBSD/amd64 X.X installation program.
 (I)nstall, (U)pgrade, (A)utoinstall or (S)hell?
 ~~~~~~
+
+A future release of OpenHRC will automate this upgrade process as a playbook
+run from the router itself; for now it remains a manual procedure.

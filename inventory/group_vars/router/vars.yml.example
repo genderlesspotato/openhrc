@@ -1,0 +1,65 @@
+---
+# Site-specific overrides for the "router" group.
+#
+# Copy this file to vars.yml (gitignored) and edit as needed. Only override
+# the keys you actually want to change — every variable here has a sensible
+# default in its owning role's defaults/main.yml, so an empty vars.yml is a
+# valid, working configuration.
+#
+# Secrets (currently just the DDNS hash) do NOT go in this file — see
+# vault.yml.example instead.
+
+# base_hostname: openhrc
+# base_mirror: cdn.openbsd.org
+# base_packages: []
+
+# network_interfaces:
+#   wan:
+#     iface: re0
+#     ip4: dhcp
+#     description: Uplink
+#   lan:
+#     iface: re1
+#     ip4: 10.0.0.1/24
+#     description: The LAN
+# network_wan_gateway_enabled: false
+# network_wan_gateway_address: ""
+
+# dhcp_range: 10.0.0.50-10.0.0.100
+# dhcp_static_mappings:
+#   - host: test
+#     mac: ca:fe:ca:fe:ca:fe
+#     ip: 10.0.0.55
+
+# dns_recursive_forwarders: []
+#   - 8.8.8.8
+#   - 64.6.64.6
+# dns_recursive_enable_dnssec_validation: true
+# dns_recursive_permissive_dnssec_validation: false
+# dns_authoritative_zone: home.lan
+# dns_authoritative_records: []
+#   - foo.home.lan IN A 10.0.0.20
+
+# ntp_serve_lan_clients: true
+# ntp_servers_pool:
+#   - 0.openbsd.pool.ntp.org
+# ntp_servers_explicit:
+#   - time.cloudflare.com
+
+# firewall_enable_wan_ssh: true
+# firewall_wan_ssh_external_port: 8022
+# firewall_enable_wan_ping: false
+# firewall_enable_custom_rules: false
+# firewall_port_forwardings: []
+#   - external_ports: 8080
+#     target: 10.0.0.51
+#     internal_ports: 80
+#     protocols: tcp
+
+# upnp_enabled: false
+
+# ddns_enabled: false
+# ddns_update_period_seconds: 600
+# ddns_system: default@freedns.afraid.org
+# ddns_alias: test.mooo.com
+# ddns_hash: "{{ vault_ddns_hash }}"

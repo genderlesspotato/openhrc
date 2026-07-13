@@ -1,0 +1,25 @@
+---
+- name: Template dhcpd.conf
+  ansible.builtin.template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcpd.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+  notify: Restart dhcpd
+
+- name: Template ethers file
+  ansible.builtin.template:
+    src: ethers.j2
+    dest: /etc/ethers
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+
+- name: Enable dhcpd service
+  ansible.builtin.service:
+    name: dhcpd
+    args: "{{ network_interfaces.lan.iface }}"
+    enabled: true

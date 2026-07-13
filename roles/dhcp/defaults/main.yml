@@ -1,0 +1,8 @@
+---
+dhcp_range: 10.0.0.50-10.0.0.100
+
+# Sample:
+#   - host: test
+#     mac: ca:fe:ca:fe:ca:fe
+#     ip: 10.0.0.55
+dhcp_static_mappings: []

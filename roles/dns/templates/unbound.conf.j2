@@ -1,0 +1,62 @@
+# {{ ansible_managed }}
+
+{% set ip = network_interfaces.lan.ip4 | ansible.utils.ipv4('host/prefix') %}
+server:
+    access-control: 0.0.0.0/0 refuse
+    access-control: 127.0.0.0/8 allow
+    access-control: ::0/0 refuse
+    access-control: ::1 allow
+    access-control: {{ ip | ansible.utils.ipaddr('network') }}/{{ ip | ansible.utils.ipaddr('prefix') }} allow
+
+    interface: {{ ip | ansible.utils.ipaddr('address') }}
+    #do-ip6: no
+
+    logfile: "unbound.log"
+    verbosity: 1
+{% if dns_recursive_enable_syslog %}
+    use-syslog: yes
+{% else %}
+    use-syslog: no
+{% endif %}
+    log-time-ascii: yes
+{% if dns_recursive_enable_query_logging %}
+    log-queries: yes
+{% endif %}
+
+    hide-identity: yes
+    hide-version: yes
+
+{% if dns_recursive_enable_dnssec_validation %}
+    auto-trust-anchor-file: "/var/unbound/db/root.key"
+    val-log-level: 2
+{% if dns_recursive_permissive_dnssec_validation %}
+    val-permissive-mode: yes
+{% endif %}
+{% endif %}
+
+    # Inline RRs for {{ dns_authoritative_zone }} (no real authoritative
+    # server here -- these are static local-data overrides served by the
+    # recursive resolver itself; see the dns role's README for why).
+    local-data: '{{ base_hostname }}.{{ dns_authoritative_zone }}. IN A {{ network_interfaces.lan.ip4 | ansible.utils.ipaddr('address') }}'
+{% for entry in dhcp_static_mappings %}
+    local-data: '{{ entry.host }}.{{ dns_authoritative_zone }}. IN A {{ entry.ip }}'
+{% endfor %}
+    local-data: '{{ network_interfaces.lan.ip4 | ansible.utils.ipaddr('revdns') }} IN PTR {{ base_hostname }}.{{ dns_authoritative_zone }}.'
+{% for entry in dhcp_static_mappings %}
+    local-data: '{{ entry.ip | ansible.utils.ipaddr('revdns') }} IN PTR {{ entry.host }}.{{ dns_authoritative_zone }}.'
+{% endfor %}
+{% for record in dns_authoritative_records %}
+    local-data: '{{ record }}'
+{% endfor %}
+
+remote-control:
+     control-enable: yes
+     control-interface: /var/run/unbound.sock
+
+{% if dns_recursive_forwarders %}
+forward-zone:
+    name: "."
+{% for item in dns_recursive_forwarders %}
+    forward-addr: {{ item }}
+{% endfor %}
+{% endif %}

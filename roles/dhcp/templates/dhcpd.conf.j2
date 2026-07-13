@@ -1,0 +1,26 @@
+# {{ ansible_managed }}
+
+authoritative;
+{% set ip = network_interfaces.lan.ip4 | ansible.utils.ipv4('host/prefix') %}
+
+option domain-name-servers {{ ip | ansible.utils.ipaddr('address') }};
+option domain-name "{{ dns_authoritative_zone }}";
+{% if ntp_serve_lan_clients %}
+option ntp-servers {{ ip | ansible.utils.ipaddr('address') }};
+{% endif %}
+
+subnet {{ ip | ansible.utils.ipaddr('network') }} netmask {{ ip | ansible.utils.ipaddr('netmask') }} {
+{% set range_start, range_end = dhcp_range.split('-') %}
+       range {{ range_start }} {{ range_end }};
+       option routers {{ ip | ansible.utils.ipaddr('address') }};
+       option subnet-mask {{ ip | ansible.utils.ipaddr('netmask') }};
+       option broadcast-address {{ ip | ansible.utils.ipaddr('broadcast') }};
+}
+
+# Static mappings
+{% for item in dhcp_static_mappings %}
+host {{ item.host }} {
+    hardware ethernet {{ item.mac }};
+    fixed-address {{ item.ip }};
+}
+{% endfor %}

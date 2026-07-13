@@ -1,0 +1,16 @@
+---
+base_hostname: openhrc
+base_mirror: cdn.openbsd.org
+
+base_packages: []
+
+base_sysctls:
+  net.inet.ip.forwarding: 1
+  net.inet6.ip6.forwarding: 1
+
+# Miscellaneous rc.d services not owned by any other role, e.g.:
+#   - name: sndiod
+#     enabled: false
+#   - name: sensorsd
+#     enabled: true
+base_user_daemons: []

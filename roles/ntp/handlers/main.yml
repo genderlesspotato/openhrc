@@ -1,0 +1,7 @@
+---
+# OpenBSD's ntpd does not support reloading its configuration via SIGHUP --
+# a full restart is required for changes to take effect.
+- name: Restart ntpd
+  ansible.builtin.service:
+    name: ntpd
+    state: restarted

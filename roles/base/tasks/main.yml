@@ -1,0 +1,47 @@
+---
+- name: Install doas configuration
+  ansible.builtin.copy:
+    src: doas.conf
+    dest: /etc/doas.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+
+- name: Install base packages
+  community.general.openbsd_pkg:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ base_packages }}"
+
+- name: Configure system hostname
+  ansible.builtin.template:
+    src: myname.j2
+    dest: /etc/myname
+    owner: root
+    group: wheel
+    mode: "0644"
+
+- name: Configure package mirror
+  ansible.builtin.template:
+    src: installurl.j2
+    dest: /etc/installurl
+    owner: root
+    group: wheel
+    mode: "0644"
+
+- name: Configure kernel sysctls
+  ansible.builtin.template:
+    src: sysctl.conf.j2
+    dest: /etc/sysctl.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+  notify: Apply sysctl settings
+
+- name: Enable miscellaneous services
+  ansible.builtin.service:
+    name: "{{ item.name }}"
+    args: "{{ item.args | default('') }}"
+    enabled: "{{ item.enabled }}"
+  loop: "{{ base_user_daemons }}"

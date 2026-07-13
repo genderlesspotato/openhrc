@@ -1,0 +1,24 @@
+---
+- name: Configure network interfaces
+  ansible.builtin.template:
+    src: hostname.if.j2
+    dest: "/etc/hostname.{{ item.value.iface }}"
+    owner: root
+    group: wheel
+    mode: "0640"
+  loop: "{{ network_interfaces | dict2items }}"
+
+- name: Configure default gateway
+  ansible.builtin.template:
+    src: mygate.j2
+    dest: /etc/mygate
+    owner: root
+    group: wheel
+    mode: "0640"
+  when: network_wan_gateway_enabled
+
+- name: Remove default gateway file
+  ansible.builtin.file:
+    path: /etc/mygate
+    state: absent
+  when: not network_wan_gateway_enabled

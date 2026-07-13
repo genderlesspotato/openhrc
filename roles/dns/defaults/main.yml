@@ -1,0 +1,20 @@
+---
+dns_recursive_enable_query_logging: false
+dns_recursive_enable_dnssec_validation: true
+dns_recursive_permissive_dnssec_validation: false
+dns_recursive_enable_syslog: false
+
+# Sample:
+#   - 8.8.8.8
+#   - 64.6.64.6
+dns_recursive_forwarders: []
+
+dns_authoritative_zone: home.lan
+
+# Sample:
+#   - foo.home.lan IN A 10.0.0.20
+dns_authoritative_records: []
+
+# Reserved for future DoH/DoT support -- not implemented yet.
+# dns_recursive_enable_dot: false
+# dns_recursive_dot_port: 853

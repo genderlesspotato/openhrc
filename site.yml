@@ -1,0 +1,21 @@
+---
+- name: Configure openhrc router
+  hosts: router
+  gather_facts: false
+  roles:
+    - role: base
+      tags: [base]
+    - role: network
+      tags: [network]
+    - role: firewall
+      tags: [firewall]
+    - role: dns
+      tags: [dns]
+    - role: dhcp
+      tags: [dhcp]
+    - role: ntp
+      tags: [ntp]
+    - role: upnp
+      tags: [upnp]
+    - role: ddns
+      tags: [ddns]

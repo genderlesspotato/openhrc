@@ -1,0 +1,5 @@
+---
+- name: Reload inadyn
+  ansible.builtin.service:
+    name: inadyn
+    state: reloaded

@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+
+{% if ntp_serve_lan_clients %}
+{% set ip = network_interfaces.lan.ip4 | ansible.utils.ipv4('host/prefix') %}
+listen on {{ ip | ansible.utils.ipaddr('address') }}
+{% endif %}
+
+{% for servers in ntp_servers_pool %}
+servers {{ servers }}
+{% endfor %}
+{% for server in ntp_servers_explicit %}
+server {{ server }}
+{% endfor %}
+
+constraint from "9.9.9.9"              # quad9 v4 without DNS
+constraint from "2620:fe::fe"          # quad9 v6 without DNS
+constraints from "www.ripe.net"

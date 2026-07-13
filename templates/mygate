@@ -1,3 +1,0 @@
-# templated by ansible
-
-{{ interfaces.wan.gateway }}

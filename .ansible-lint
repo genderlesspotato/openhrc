@@ -1,0 +1,7 @@
+---
+profile: production
+
+exclude_paths:
+  - .github/
+  - inventory/group_vars/router/vars.yml.example
+  - inventory/group_vars/router/vault.yml.example

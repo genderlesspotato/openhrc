@@ -1,0 +1,22 @@
+---
+- name: Install ddns package
+  community.general.openbsd_pkg:
+    name: inadyn
+    state: present
+  when: ddns_enabled
+
+- name: Template inadyn.conf
+  ansible.builtin.template:
+    src: inadyn.conf.j2
+    dest: /etc/inadyn.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+    backup: true
+  when: ddns_enabled
+  notify: Reload inadyn
+
+- name: Enable ddns service
+  ansible.builtin.service:
+    name: inadyn
+    enabled: "{{ ddns_enabled }}"
